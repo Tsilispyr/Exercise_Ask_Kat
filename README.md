@@ -1,10 +1,15 @@
 # Exercise_Ask_Kat
 Exercise for Distributed Systems 2024-2025
 User Manual
+
 Username and password default users
+
 User Username: user Password: user
+
 Admin Username: admin Password: admin
+
 Doctor Username: Doctor Password: Doctor
+
 Shelter Username: shelter Password: shelter
 
 User
