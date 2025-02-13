@@ -9,7 +9,7 @@ Shelter Username: shelter Password: shelter
 
 User
 
-The user after login in can view the Animal tab where animal entries are, he can chose to view a single or all animals and request to adopt a single or multiple animals by pressing the Request button
+The user after login in can view the Animal tab where animal entries are, he can chose to view a single or all animals and request to adopt a single or multiple animals by pressing the Request button.
 
 Shelter
 
