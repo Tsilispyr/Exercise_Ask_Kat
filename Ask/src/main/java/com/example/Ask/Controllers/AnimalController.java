@@ -32,6 +32,7 @@ public class AnimalController {
         model.addAttribute("Animals", Animal);
         return "Animal/Animals";
     }
+
     @GetMapping("/Delete/{id}")
     public String deleteAnimal(@PathVariable Integer id, Model model){
         Animal Animal = animalservice.getAnimal(id);
@@ -47,7 +48,13 @@ public class AnimalController {
         model.addAttribute("Animals", animalservice.getAnimals());
         return "Animal/Animals";
     }
-
+    @GetMapping("/Deny/{id}")
+    public String DenyAnimal(@PathVariable Integer id, Model model){
+        Animal Animal = animalservice.getAnimal(id);
+        Animal.setReq(0);
+        model.addAttribute("Animals", animalservice.getAnimals());
+        return "Animal/Animals";
+    }
 
 
 

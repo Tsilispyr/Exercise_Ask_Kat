@@ -35,6 +35,7 @@
                       <span th:if="${Animal.getReq() == 1}">
 
                     <a sec:authorize="hasRole('ROLE_SHELTER') or hasRole('ROLE_ADMIN')"  class="btn btn-outline-success btn-sm" th:href="@{'/Animal/Delete/' + ${Animal.getId()}}">Approve</a>
+                    <a sec:authorize="hasRole('ROLE_SHELTER') or hasRole('ROLE_ADMIN')"  class="btn btn-outline-danger btn-sm" th:href="@{'/Animal/Deny/' + ${Animal.getId()}}">Deny</a>
 
                     </span>
                 </td>

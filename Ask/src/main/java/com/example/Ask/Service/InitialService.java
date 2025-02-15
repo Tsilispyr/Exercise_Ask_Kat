@@ -77,11 +77,9 @@ public class InitialService {
 
 }
 public void AnimalInitial() {
-    // Helper method to create and save a request
     createRequestIfNotFound("Alex", 8, Gender.Male, "Dog");
     createRequestIfNotFound("Coco", 8, Gender.Male, "Parrot");
 
-    // Helper method to create and save an animal
     createAnimalIfNotFound("Pepper", 2, Gender.Female, "Cat");
     createAnimalIfNotFound("Nova", 1, Gender.Male, "Dog");
 }

@@ -56,33 +56,3 @@ public class SecurityConfig {
 
 
 }
-//@Configuration
-//public class SecurityConfig {
-//
-//    private final CustomAuthenticationFailureHandler failureHandler;
-//    private BCryptPasswordEncoder passwordEncoder;
-//
-//    public SecurityConfig(CustomAuthenticationFailureHandler failureHandler) {
-//        this.failureHandler = failureHandler;
-//    }
-//
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-//                .authorizeHttpRequests(requests -> requests
-//                        .requestMatchers("/", "/home", "/register", "/saveUser", "/images/**", "/js/**", "/css/**").permitAll()
-//                        .anyRequest().authenticated()
-//                )
-//                .formLogin(form -> form
-//                        .loginPage("/login")
-//                        .defaultSuccessUrl("/Animal", true)
-//                        .failureHandler(failureHandler) // Attach custom failure handler
-//                        .permitAll()
-//                )
-//                .logout(logout -> logout.permitAll());
-//
-//        return http.build();
-//    }
-//
-//
-//}
