@@ -7,7 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import com.example.Ask.Entities.Animal;
-import com.example.Ask.Entities.Gender;
+import com.example.Ask.Entities.Gender; 
 
 
 @Controller
@@ -55,10 +55,6 @@ public class AnimalController {
         model.addAttribute("Animals", animalservice.getAnimals());
         return "Animal/Animals";
     }
-
-
-
-
 
 
 

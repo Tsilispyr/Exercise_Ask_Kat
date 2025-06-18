@@ -46,7 +46,7 @@
                         </span>
                     </td>
                     <td>
-                        <a sec:authorize="hasRole('ROLE_ADMIN')" class="btn btn-outline-danger btn-sm" th:href="@{'/Animal/Delete' + ${Animal.getId()}}">Delete</a>
+                        <a sec:authorize="hasRole('ROLE_ADMIN')" class="btn btn-outline-danger btn-sm" th:href="@{'/Animal/Delete/' + ${Animal.getId()}}">Delete</a>
                     </td>
             </tr>
             </tbody>
