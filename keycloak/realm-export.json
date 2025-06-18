@@ -1,0 +1,50 @@
+{
+  "realm": "petsystem",
+  "enabled": true,
+  "displayName": "Pet System Realm",
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Admin",
+      "lastName": "User",
+      "email": "admin@example.com",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "ADMIN"
+      ]
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "USER",
+        "description": "Regular user"
+      },
+      {
+        "name": "ADMIN",
+        "description": "Administrator"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "backend",
+      "protocol": "openid-connect",
+      "enabled": true,
+      "publicClient": false,
+      "directAccessGrantsEnabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "my-secret",
+      "redirectUris": ["*"],
+      "standardFlowEnabled": false
+    }
+  ]
+}
