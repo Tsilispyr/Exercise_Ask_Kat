@@ -59,4 +59,53 @@ public class RequestService {
             }
 
 }
+
+@Autowired
+private EmailService emailService;
+
+// Όταν δημιουργείται νέο request
+public void submitRequest(Request request) {
+    // save request...
+    requestRepository.save(request);
+
+    // Στείλε email στον χρήστη
+    emailService.send(
+        request.getUser().getEmail(), 
+        "Your adoption request has been submitted",
+        "Your request for adopting animal '" + request.getAnimal().getName() +
+        "' has been submitted and is pending doctor approval."
+    );
+}
+
+// Όταν ο doctor κάνει approve/decline
+public void doctorDecision(Request request, boolean approved) {
+    request.setDocApproved(approved);
+    requestRepository.save(request);
+
+    String decision = approved ? "approved" : "declined";
+
+    emailService.send(
+        request.getUser().getEmail(),
+        "Doctor Decision on Your Adoption Request",
+        "The doctor has " + decision + " your request for animal '" + request.getAnimal().getName() + "'."
+    );
+}
+
+// Όταν ο admin κάνει approve/decline
+public void adminDecision(Request request, boolean approved) {
+    request.setAdminApproved(approved);
+    requestRepository.save(request);
+
+    String decision = approved ? "approved" : "declined";
+
+    emailService.send(
+        request.getUser().getEmail(),
+        "Final Decision on Your Adoption Request",
+        "The admin has " + decision + " your request for animal '" + request.getAnimal().getName() +
+        "'. This is the final decision."
+    );
+}
+
+
+}
 }
