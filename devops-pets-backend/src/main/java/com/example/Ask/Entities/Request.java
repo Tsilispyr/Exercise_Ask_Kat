@@ -1,0 +1,121 @@
+package com.example.Ask.Entities;
+
+import jakarta.persistence.*;
+
+@Entity
+public class Request {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
+    private int id;
+
+
+    @Column
+    private int age;
+    @Enumerated(EnumType.STRING)
+    private Gender Gender;
+    @Column
+    private String type;
+
+    @Column
+    private String name;
+
+    @Column
+    private int AdminApproved;
+
+    @Column
+    private int DocApproved;
+
+    @Column
+    private int ShelterApproved;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    public String getName() {
+        return name;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public Gender getGender() {
+        return Gender;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public int getAdminApproved() {
+        return AdminApproved;
+    }
+
+    public void setAdminApproved(int adminApproved) {
+        AdminApproved = adminApproved;
+    }
+
+    public int getDocApproved() {
+        return DocApproved;
+    }
+
+    public void setDocApproved(int docApproved) {
+        DocApproved = docApproved;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setGender(Gender gender) {
+        this.Gender = gender;
+    }
+
+    public int getShelterApproved() {
+        return ShelterApproved;
+    }
+
+    public void setShelterApproved(int shelterApproved) {
+        ShelterApproved = shelterApproved;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Request(int id, int age, Gender gender, String type, String name) {
+        this.id = id;
+        this.age = age;
+        this.Gender = gender;
+        this.type = type;
+        this.name = name;
+    }
+    public Request() {
+
+    }
+
+
+}

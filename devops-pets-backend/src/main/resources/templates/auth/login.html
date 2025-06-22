@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{page_layout/layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+<div layout:fragment="main-content">
+    <div th:if="${param.error}">
+        Invalid username and password.
+    </div>
+    <div th:if="${param.logout}">
+        You have been logged out.
+    </div>
+    <!-- Login is now handled by Keycloak. Please use the Keycloak login page. -->
+    <p>Login is now handled by Keycloak. <a href="http://localhost:8081/realms/petsystem/account/#/">Login here</a>.</p>
+</div>
+</body>
+</html>
