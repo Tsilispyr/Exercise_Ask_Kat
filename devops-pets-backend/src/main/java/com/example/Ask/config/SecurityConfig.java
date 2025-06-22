@@ -85,23 +85,44 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .cors() // ενεργοποίηση CORS
-            .and()
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/index", "/css/**", "/js/**", "/images/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt
-                    .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                )
-            );
-        return http.build();
-    }
+    // @Bean
+    // public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    //     http
+    //         .cors() // ενεργοποίηση CORS
+    //         .and()
+    //         .authorizeHttpRequests(auth -> auth
+    //             .requestMatchers("/", "/index", "/css/**", "/js/**", "/images/**").permitAll()
+    //             .anyRequest().authenticated()
+    //         )
+    //         .oauth2ResourceServer(oauth2 -> oauth2
+    //             .jwt(jwt -> jwt
+    //                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
+    //             )
+    //         );
 
+    //     return http.build();
+    // }
+
+
+
+
+    @Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .authorizeHttpRequests(authz -> authz
+            .requestMatchers("/", "/home", "/login", "/register", "/css/**", "/js/**", "/images/**").permitAll()
+            .anyRequest().authenticated()
+        )
+        .formLogin(form -> form
+            .loginPage("/login")
+            .permitAll()
+        )
+        .logout(logout -> logout
+            .permitAll()
+        );
+    
+    return http.build();
+}
     private JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         grantedAuthoritiesConverter.setAuthoritiesClaimName("realm_access.roles");
