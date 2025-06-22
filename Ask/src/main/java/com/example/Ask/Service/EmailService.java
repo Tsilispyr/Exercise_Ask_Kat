@@ -1,4 +1,4 @@
-package com.example.Ask.service;
+package com.example.Ask.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;

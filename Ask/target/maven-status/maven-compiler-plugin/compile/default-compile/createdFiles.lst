@@ -8,6 +8,7 @@ com/example/Ask/Controllers/HomeController.class
 com/example/Ask/Entities/Animal.class
 com/example/Ask/config/SecurityConfig.class
 com/example/Ask/AskApplication.class
+com/example/Ask/Service/EmailService.class
 com/example/Ask/Entities/User.class
 com/example/Ask/Entities/Request.class
 com/example/Ask/Repositories/AnimalRepository.class
