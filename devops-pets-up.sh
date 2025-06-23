@@ -86,6 +86,39 @@ function k8s_soft_cleanup() {
   echo "[CLEANUP] Ολοκληρώθηκε. Τα δεδομένα (PVC, ConfigMap, Secrets) διατηρούνται."
 }
 
+# Περιμένει μέχρι το image να είναι διαθέσιμο στο Minikube node
+function wait_for_image_on_node() {
+  local image=$1
+  local max_retries=12
+  local count=1
+  echo "[WAIT] Περιμένω το image $image να γίνει διαθέσιμο στο Minikube node..."
+  while [ $count -le $max_retries ]; do
+    # Έλεγχος αν το image είναι διαθέσιμο στο node μέσω crictl (containerd)
+    if minikube ssh "sudo crictl images | grep -q $image"; then
+      echo "[WAIT] Το image $image είναι διαθέσιμο στο Minikube node!"
+      return 0
+    fi
+    echo "[WAIT] Το image $image ΔΕΝ είναι ακόμα διαθέσιμο, retry $count/$max_retries..."
+    sleep 5
+    count=$((count+1))
+  done
+  echo "[ERROR] Το image $image ΔΕΝ έγινε διαθέσιμο στο Minikube node μετά από $((max_retries*5)) δευτερόλεπτα!"; exit 1
+}
+
+function force_build_image() {
+  local image=$1
+  local dir=$2
+  echo "[FORCE BUILD] Διαγράφω τυχόν παλιό image $image..."
+  docker rmi $image || true
+  echo "[FORCE BUILD] Χτίζω νέο image $image από $dir ..."
+  cd "$dir"
+  docker build -t "$image" . || { echo "[ERROR] Αποτυχία build για $image!"; exit 1; }
+  cd - >/dev/null
+  echo "[FORCE BUILD] Φόρτωση image στο Minikube..."
+  minikube image load $image
+  wait_for_image_on_node $image
+}
+
 # --------- MAIN SCRIPT ---------
 
 # Κάλεσε το cleanup στην αρχή
@@ -99,18 +132,6 @@ ensure_minikube_docker_env
 
 # 2. Force rebuild images (πάντα, για να είναι φρέσκα)
 echo "[BUILD] Force rebuild όλων των images..."
-function force_build_image() {
-  local image=$1
-  local dir=$2
-  echo "[FORCE BUILD] Διαγράφω τυχόν παλιό image $image..."
-  docker rmi $image || true
-  echo "[FORCE BUILD] Χτίζω νέο image $image από $dir ..."
-  cd "$dir"
-  docker build -t "$image" . || { echo "[ERROR] Αποτυχία build για $image!"; exit 1; }
-  cd - >/dev/null
-  echo "[FORCE BUILD] Φόρτωση image στο Minikube..."
-  minikube image load $image
-}
 
 force_build_image "$BACKEND_IMAGE" Ask
 force_build_image "$FRONTEND_IMAGE" frontend
