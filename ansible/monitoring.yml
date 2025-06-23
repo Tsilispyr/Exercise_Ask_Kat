@@ -16,7 +16,9 @@
       when: kubectl_check.rc != 0
 
     - name: Create monitoring namespace
-      command: kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
+      shell: kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
+      args:
+        executable: /bin/bash
       register: monitoring_namespace
       failed_when: false
 
@@ -28,10 +30,12 @@
     - name: Deploy Prometheus Deployment
       command: kubectl apply -f ../k8s/monitoring/prometheus-deployment.yaml
       register: prometheus_deployment
+      failed_when: false
       
     - name: Deploy Prometheus Service
       command: kubectl apply -f ../k8s/monitoring/prometheus-service.yaml
       register: prometheus_service
+      failed_when: false
 
     - name: Deploy Grafana ConfigMap
       command: kubectl apply -f ../k8s/monitoring/grafana-config.yaml
