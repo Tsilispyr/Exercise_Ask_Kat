@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-This guide provides step-by-step instructions to set up and run the complete DevOps Pets application, including all components and infrastructure.
+This guide provides step-by-step instructions to set up and run the complete DevOps-Pets application, including all components and infrastructure.
 
 ## 🎯 Application Components
 
@@ -384,3 +384,96 @@ kubectl exec -i deployment/postgres -- psql -U petuser petdb < backup.sql
 ---
 
 **Happy Deploying! 🚀** 
+
+## ΔΙΟΡΘΩΣΗ POSTGRESQL VERSION CONFLICT
+
+### Βήμα 1: Διαγραφή παλιού PVC
+```bash
+# Διαγραφή PostgreSQL deployment και PVC
+kubectl delete deployment postgres
+kubectl delete pvc postgres-pvc
+```
+
+### Βήμα 2: Δημιουργία νέου PostgreSQL deployment με version 13
+```bash
+# Εφαρμογή νέου deployment με PostgreSQL 13
+kubectl apply -f - <<EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:13
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: petdb
+            - name: POSTGRES_USER
+              value: petuser
+            - name: POSTGRES_PASSWORD
+              value: petpass
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-storage
+          emptyDir: {}
+EOF
+```
+
+### Βήμα 3: Εφαρμογή service
+```bash
+# Εφαρμογή PostgreSQL service
+kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+EOF
+```
+
+### Βήμα 4: Έλεγχος ότι τρέχει
+```bash
+# Έλεγχος PostgreSQL pod
+kubectl get pods | grep postgres
+
+# Έλεγχος logs
+kubectl logs deployment/postgres
+
+# Έλεγχος service
+kubectl get service postgres
+```
+
+### Βήμα 5: Restart backend
+```bash
+# Restart backend deployment
+kubectl rollout restart deployment/backend
+
+# Έλεγχος status
+kubectl rollout status deployment/backend
+```
+
+---
+
+**Ξεκίνα με το Βήμα 1** (διαγραφή παλιού deployment και PVC) και πες μου τι συμβαίνει! 
+
+Θα διορθώσουμε το PostgreSQL και μετά το backend θα τρέξει κανονικά. 🚀 
