@@ -1,6 +1,4 @@
 ---
 collections:
   - name: kubernetes.core
-    version: ">=2.4.0"
-  - name: community.kubernetes
-    version: ">=4.0.0" 
+    version: ">=2.4.0" 
