@@ -1,4 +1,2 @@
 ---
-collections:
-  - name: kubernetes.core
-    version: ">=2.4.0" 
+# No external collections required for basic kubectl commands 

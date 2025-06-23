@@ -16,40 +16,25 @@
       when: kubectl_check.rc != 0
       
     - name: Apply backend deployment
-      kubernetes.core.k8s:
-        state: present
-        src: ../k8s/backend/backend-deployment.yaml
+      command: kubectl apply -f ../k8s/backend/backend-deployment.yaml
       register: deployment_result
       
     - name: Apply backend service
-      kubernetes.core.k8s:
-        state: present
-        src: ../k8s/backend/backend-service.yaml
+      command: kubectl apply -f ../k8s/backend/backend-service.yaml
       register: service_result
       
     - name: Wait for deployment to be ready
-      kubernetes.core.k8s_info:
-        api_version: apps/v1
-        kind: Deployment
-        name: backend
-        namespace: default
-      register: deployment_status
-      until: deployment_status.resources[0].status.ready_replicas == deployment_status.resources[0].status.replicas
-      retries: 30
-      delay: 10
+      command: kubectl rollout status deployment/backend --timeout=300s
+      register: rollout_result
       
     - name: Display deployment status
       debug:
         msg: "Backend deployment completed successfully!"
         
-    - name: Get service URL
-      kubernetes.core.k8s_info:
-        api_version: v1
-        kind: Service
-        name: backend
-        namespace: default
+    - name: Get service information
+      command: kubectl get service backend
       register: service_info
       
     - name: Display service information
       debug:
-        msg: "Backend service is available at: {{ service_info.resources[0].status.load_balancer.ingress[0].ip if service_info.resources[0].status.load_balancer.ingress else 'ClusterIP' }}" 
+        msg: "{{ service_info.stdout_lines }}" 
