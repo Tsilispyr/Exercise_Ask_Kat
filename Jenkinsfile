@@ -40,14 +40,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Deploy Monitoring') {
-            steps {
-                dir('ansible') {
-                    sh 'ansible-playbook monitoring.yml -v'
-                }
-            }
-        }
     }
 
     post {
@@ -65,14 +57,9 @@ pipeline {
              ✔️PostgreSQL Database
              ✔️Keycloak Authentication
              ✔️MailHog Email Service
-             ✔️Prometheus Monitoring
-             Grafana Dashboards
             
             To access the application:
             kubectl port-forward service/backend 8080:8080
-            
-            To access monitoring:
-            kubectl port-forward service/grafana 3000:3000 -n monitoring
             '''
         }
         failure {

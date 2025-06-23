@@ -67,19 +67,61 @@ function port_forward_with_retry() {
   echo "[${name}] Αποτυχία μετά από $max_retries προσπάθειες."
 }
 
+function ensure_minikube_docker_env() {
+  eval $(minikube -p minikube docker-env)
+}
+
+# --------- SOFT CLEANUP ---------
+function k8s_soft_cleanup() {
+  echo "[CLEANUP] Διαγράφω όλα τα deployments, pods, services, replicaSets, daemonSets, statefulSets, jobs, cronjobs, ingress (όχι PVC/ConfigMap/Secrets)..."
+  kubectl delete deployment --all --ignore-not-found
+  kubectl delete pod --all --ignore-not-found
+  kubectl delete service --all --ignore-not-found
+  kubectl delete replicaset --all --ignore-not-found
+  kubectl delete daemonset --all --ignore-not-found
+  kubectl delete statefulset --all --ignore-not-found
+  kubectl delete ingress --all --ignore-not-found || true
+  kubectl delete job --all --ignore-not-found || true
+  kubectl delete cronjob --all --ignore-not-found || true
+  echo "[CLEANUP] Ολοκληρώθηκε. Τα δεδομένα (PVC, ConfigMap, Secrets) διατηρούνται."
+}
+
 # --------- MAIN SCRIPT ---------
+
+# Κάλεσε το cleanup στην αρχή
+k8s_soft_cleanup
 
 # 0. Έλεγχος dependencies
 for cmd in docker kubectl ansible-playbook nc minikube; do check_cmd $cmd; done
 
 # 1. Minikube docker env
-echo "[ENV] Ενεργοποίηση Minikube docker-env..."
-eval $(minikube -p minikube docker-env)
+ensure_minikube_docker_env
 
-# 2. Build images
-build_image_if_needed "$BACKEND_IMAGE" Ask
-build_image_if_needed "$FRONTEND_IMAGE" frontend
-build_image_if_needed "$JENKINS_IMAGE" k8s/jenkins
+# 2. Force rebuild images (πάντα, για να είναι φρέσκα)
+echo "[BUILD] Force rebuild όλων των images..."
+function force_build_image() {
+  local image=$1
+  local dir=$2
+  echo "[FORCE BUILD] Διαγράφω τυχόν παλιό image $image..."
+  docker rmi $image || true
+  echo "[FORCE BUILD] Χτίζω νέο image $image από $dir ..."
+  cd "$dir"
+  docker build -t "$image" . || { echo "[ERROR] Αποτυχία build για $image!"; exit 1; }
+  cd - >/dev/null
+  echo "[FORCE BUILD] Φόρτωση image στο Minikube..."
+  minikube image load $image
+}
+
+force_build_image "$BACKEND_IMAGE" Ask
+force_build_image "$FRONTEND_IMAGE" frontend
+force_build_image "$JENKINS_IMAGE" k8s/jenkins
+
+# Deploy Jenkins manifests (pvc, rbac, deployment, service)
+echo "[DEPLOY] Deploy Jenkins manifests..."
+kubectl apply -f k8s/jenkins/jenkins-pvc.yaml
+kubectl apply -f k8s/jenkins/jenkins-rbac.yaml
+kubectl apply -f k8s/jenkins/jenkins-deployment.yaml
+kubectl apply -f k8s/jenkins/jenkins-service.yaml
 
 # 3. Δημιουργία ConfigMap για Keycloak
 create_configmap
@@ -96,6 +138,35 @@ fi
 
 # 5. Wait for pods
 wait_for_pods
+
+# 5b. Jenkins pod ImagePullBackOff auto-fix
+function fix_jenkins_imagepull() {
+  local max_retries=3
+  local count=1
+  while [ $count -le $max_retries ]; do
+    jenkins_status=$(kubectl get pods -l app=jenkins -o jsonpath='{.items[0].status.containerStatuses[0].state.waiting.reason}' 2>/dev/null || echo "")
+    if [[ "$jenkins_status" == "ImagePullBackOff" || "$jenkins_status" == "ErrImagePull" ]]; then
+      echo "[JENKINS] Εντοπίστηκε $jenkins_status! Αυτόματο rebuild image και διαγραφή pod (προσπάθεια $count/$max_retries)..."
+      ensure_minikube_docker_env
+      docker rmi $JENKINS_IMAGE || true
+      build_image_if_needed "$JENKINS_IMAGE" k8s/jenkins
+      kubectl delete pod -l app=jenkins
+      sleep 10
+    else
+      echo "[JENKINS] Jenkins pod δεν έχει ImagePullBackOff. Προχωράμε."
+      return 0
+    fi
+    count=$((count+1))
+    sleep 10
+  done
+  # Τελικός έλεγχος
+  jenkins_status=$(kubectl get pods -l app=jenkins -o jsonpath='{.items[0].status.containerStatuses[0].state.waiting.reason}' 2>/dev/null || echo "")
+  if [[ "$jenkins_status" == "ImagePullBackOff" || "$jenkins_status" == "ErrImagePull" ]]; then
+    echo "[ERROR] Jenkins pod παραμένει σε $jenkins_status μετά από $max_retries προσπάθειες!"; exit 1
+  fi
+}
+
+fix_jenkins_imagepull
 
 # 6. Port-forward στα βασικά services (στο background)
 echo "[PORT-FWD] Κάνω port-forward στα βασικά services..."
