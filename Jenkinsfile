@@ -27,12 +27,11 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Deploy with Ansible') {
             steps {
-                echo 'Deploying to Kubernetes...'
-                sh "kubectl rollout restart deployment/backend"
-                sh "kubectl rollout status deployment/backend -w"
-                echo 'Deployment successful!'
+                dir('ansible') {
+                    sh 'ansible-playbook deploy.yml -v'
+                }
             }
         }
     }
@@ -40,6 +39,12 @@ pipeline {
     post {
         always {
             echo 'Pipeline completed!'
+        }
+        success {
+            echo 'Deployment successful! Backend is now running on Kubernetes.'
+        }
+        failure {
+            echo 'Deployment failed! Check the logs for more details.'
         }
     }
 }
