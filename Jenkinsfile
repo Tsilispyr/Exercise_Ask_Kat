@@ -11,6 +11,12 @@ pipeline {
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Build Java Application') {
             steps {
                 dir('Ask') {
