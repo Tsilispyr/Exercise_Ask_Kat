@@ -1,0 +1,76 @@
+---
+- name: Deploy Monitoring Stack
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  
+  tasks:
+    - name: Check if kubectl is available
+      command: kubectl version --client
+      register: kubectl_check
+      failed_when: false
+      
+    - name: Fail if kubectl is not available
+      fail:
+        msg: "kubectl is not available. Please install kubectl first."
+      when: kubectl_check.rc != 0
+
+    - name: Create monitoring namespace
+      command: kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
+      register: monitoring_namespace
+      failed_when: false
+
+    - name: Deploy Prometheus ConfigMap
+      command: kubectl apply -f ../k8s/monitoring/prometheus-config.yaml
+      register: prometheus_config
+      failed_when: false
+      
+    - name: Deploy Prometheus Deployment
+      command: kubectl apply -f ../k8s/monitoring/prometheus-deployment.yaml
+      register: prometheus_deployment
+      
+    - name: Deploy Prometheus Service
+      command: kubectl apply -f ../k8s/monitoring/prometheus-service.yaml
+      register: prometheus_service
+
+    - name: Deploy Grafana ConfigMap
+      command: kubectl apply -f ../k8s/monitoring/grafana-config.yaml
+      register: grafana_config
+      failed_when: false
+      
+    - name: Deploy Grafana Deployment
+      command: kubectl apply -f ../k8s/monitoring/grafana-deployment.yaml
+      register: grafana_deployment
+      
+    - name: Deploy Grafana Service
+      command: kubectl apply -f ../k8s/monitoring/grafana-service.yaml
+      register: grafana_service
+
+    - name: Wait for Prometheus to be ready
+      command: kubectl rollout status deployment/prometheus --timeout=300s -n monitoring
+      register: prometheus_rollout
+      
+    - name: Wait for Grafana to be ready
+      command: kubectl rollout status deployment/grafana --timeout=300s -n monitoring
+      register: grafana_rollout
+
+    - name: Display monitoring status
+      debug:
+        msg: |
+          ========================================
+          MONITORING STACK DEPLOYED!
+          ========================================
+          
+          Services deployed:
+          - Prometheus (Metrics Collection)
+          - Grafana (Dashboards)
+          
+          To access Prometheus:
+          kubectl port-forward service/prometheus 9090:9090 -n monitoring
+          
+          To access Grafana:
+          kubectl port-forward service/grafana 3000:3000 -n monitoring
+          Default credentials: admin/admin
+          
+          To check monitoring pods:
+          kubectl get pods -n monitoring 

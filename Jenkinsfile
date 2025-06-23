@@ -27,10 +27,18 @@ pipeline {
             }
         }
 
-        stage('Deploy with Ansible') {
+        stage('Deploy Complete Application') {
             steps {
                 dir('ansible') {
-                    sh 'ansible-playbook deploy.yml -v'
+                    sh 'ansible-playbook deploy-all.yml -v'
+                }
+            }
+        }
+
+        stage('Deploy Monitoring') {
+            steps {
+                dir('ansible') {
+                    sh 'ansible-playbook monitoring.yml -v'
                 }
             }
         }
@@ -41,7 +49,25 @@ pipeline {
             echo 'Pipeline completed!'
         }
         success {
-            echo 'Deployment successful! Backend is now running on Kubernetes.'
+            echo '''
+            ========================================
+            DEPLOYMENT SUCCESSFUL!
+            ========================================
+            
+            Application Components:
+             ✔️ Backend Application
+             ✔️PostgreSQL Database
+             ✔️Keycloak Authentication
+             ✔️MailHog Email Service
+             ✔️Prometheus Monitoring
+             Grafana Dashboards
+            
+            To access the application:
+            kubectl port-forward service/backend 8080:8080
+            
+            To access monitoring:
+            kubectl port-forward service/grafana 3000:3000 -n monitoring
+            '''
         }
         failure {
             echo 'Deployment failed! Check the logs for more details.'
