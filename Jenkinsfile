@@ -6,10 +6,8 @@ pipeline {
     }
 
     environment {
-        DOCKERHUB_CREDENTIALS_ID = 'dockerhub-credentials'
-        DOCKERHUB_USERNAME       = 'tsilispyr'
-        IMAGE_NAME               = "${DOCKERHUB_USERNAME}/devops-pets-backend"
-        IMAGE_TAG                = "latest"
+        IMAGE_NAME = 'devops-pets-backend'
+        IMAGE_TAG  = 'latest'
     }
 
     stages {
@@ -29,15 +27,6 @@ pipeline {
             }
         }
 
-        stage('Push Docker Image') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                    sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
-                    sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
-                }
-            }
-        }
-
         stage('Deploy to Kubernetes') {
             steps {
                 echo 'Deploying to Kubernetes...'
@@ -50,8 +39,7 @@ pipeline {
 
     post {
         always {
-            echo 'Logging out from Docker Hub...'
-            sh 'docker logout'
+            echo 'Pipeline completed!'
         }
     }
 }
