@@ -22,13 +22,15 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                echo 'Deploying application to Kubernetes...'
-                sh 'kubectl apply -R -f k8s/'
-                sh 'kubectl rollout restart deployment backend'
-                sh 'kubectl rollout restart deployment frontend'
-                echo 'Waiting for deployments to complete...'
-                sh 'kubectl wait --for=condition=available --timeout=120s deployment/backend'
-                sh 'kubectl wait --for=condition=available --timeout=120s deployment/frontend'
+                withCredentials([string(credentialsId: 'jenkins-kubeconfig-text', variable: 'KUBECONFIG_CONTENT')]) {
+                    writeFile file: 'jenkins-kubeconfig', text: env.KUBECONFIG_CONTENT
+                    sh 'export KUBECONFIG=$PWD/jenkins-kubeconfig && kubectl apply -R -f k8s/'
+                    sh 'export KUBECONFIG=$PWD/jenkins-kubeconfig && kubectl rollout restart deployment backend'
+                    sh 'export KUBECONFIG=$PWD/jenkins-kubeconfig && kubectl rollout restart deployment frontend'
+                    echo 'Waiting for deployments to complete...'
+                    sh 'export KUBECONFIG=$PWD/jenkins-kubeconfig && kubectl wait --for=condition=available --timeout=120s deployment/backend'
+                    sh 'export KUBECONFIG=$PWD/jenkins-kubeconfig && kubectl wait --for=condition=available --timeout=120s deployment/frontend'
+                }
             }
         }
     }
