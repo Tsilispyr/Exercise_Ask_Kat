@@ -25,19 +25,22 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build Docker Image and Load into Kind') {
             steps {
                 dir('Ask') {
                     sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                    sh "kind load docker-image ${IMAGE_NAME}:${IMAGE_TAG}"
                 }
             }
         }
 
-        stage('Deploy Complete Application') {
+        stage('Deploy to Kubernetes') {
             steps {
-                dir('ansible') {
-                    sh 'ansible-playbook deploy-all.yml -v'
-                }
+                echo 'Deploying application to Kubernetes...'
+                sh 'kubectl apply -R -f k8s/'
+                sh 'kubectl rollout restart deployment backend'
+                echo 'Waiting for deployment to complete...'
+                sh 'kubectl wait --for=condition=ready pod -l app=backend --timeout=120s'
             }
         }
     }
@@ -52,14 +55,8 @@ pipeline {
             DEPLOYMENT SUCCESSFUL!
             ========================================
             
-            Application Components:
-             ✔️ Backend Application
-             ✔️PostgreSQL Database
-             ✔️Keycloak Authentication
-             ✔️MailHog Email Service
-            
-            To access the application:
-            kubectl port-forward service/backend 8080:8080
+            The backend application has been successfully built and deployed.
+            All services should be running in the Kubernetes cluster.
             '''
         }
         failure {
