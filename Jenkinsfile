@@ -5,11 +5,6 @@ pipeline {
         maven 'Maven 3.9.5'
     }
 
-    environment {
-        IMAGE_NAME = 'devops-pets-backend'
-        IMAGE_TAG  = 'latest'
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -21,24 +16,6 @@ pipeline {
             steps {
                 dir('Ask') {
                     sh 'mvn clean package -DskipTests'
-                }
-            }
-        }
-
-        stage('Build & Load Backend Image') {
-            steps {
-                dir('Ask') {
-                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-                    sh "kind load docker-image ${IMAGE_NAME}:${IMAGE_TAG}"
-                }
-            }
-        }
-
-        stage('Build & Load Frontend Image') {
-            steps {
-                dir('frontend') {
-                    sh "docker build -t devops-pets-frontend:latest ."
-                    sh "kind load docker-image devops-pets-frontend:latest"
                 }
             }
         }
@@ -65,9 +42,7 @@ pipeline {
             ========================================
             DEPLOYMENT SUCCESSFUL!
             ========================================
-            
-            The backend application has been successfully built and deployed.
-            All services should be running in the Kubernetes cluster.
+            The backend and frontend have been deployed.
             '''
         }
         failure {
