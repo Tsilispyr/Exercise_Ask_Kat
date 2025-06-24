@@ -3,6 +3,9 @@
 # Stop on any error
 set -e
 
+# Trap Ctrl+C and kill background jobs
+trap "echo -e '\n\e[31mStopping port-forwarding...\e[0m'; kill \$(jobs -p); exit" INT
+
 # --- Configuration ---
 CLUSTER_NAME="kind"
 K8S_DIR="k8s"
@@ -42,8 +45,17 @@ if [[ $(kind get clusters | grep ${CLUSTER_NAME}) ]]; then
     print_color "green" "Cluster '${CLUSTER_NAME}' already exists. Deleting it for a clean start."
     kind delete cluster --name ${CLUSTER_NAME}
 fi
-print_color "green" "Creating new kind cluster..."
-kind create cluster --name ${CLUSTER_NAME}
+print_color "green" "Creating new kind cluster with jenkins_home mount..."
+# Create a kind cluster with an extra mount for Jenkins data
+kind create cluster --name ${CLUSTER_NAME} --config - <<EOF
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraMounts:
+  - hostPath: $(pwd)/jenkins_home
+    containerPath: /jenkins_data
+EOF
 print_color "green" "Cluster created successfully."
 
 # 2. Build and Load Docker Images
@@ -70,8 +82,9 @@ kubectl create configmap keycloak-realm-config --from-file=realm-export.json=key
 print_color "green" "Base configurations applied."
 
 # 4. Deploy Core Infrastructure (PostgreSQL) and Wait
-print_color "blue" "--- Step 4: Deploying Core Infrastructure (PostgreSQL) ---"
+print_color "blue" "--- Step 4: Deploying Core Infrastructure (PostgreSQL and Jenkins PVC) ---"
 kubectl apply -f ${K8S_DIR}/postgres/postgres-pvc.yaml
+kubectl apply -f ${K8S_DIR}/jenkins/jenkins-pvc.yaml
 kubectl apply -f ${K8S_DIR}/postgres/postgres-deployment.yaml
 kubectl apply -f ${K8S_DIR}/postgres/postgres-service.yaml
 
@@ -93,11 +106,26 @@ kubectl wait --for=condition=available --timeout=${TIMEOUT} deployment/mailhog
 
 print_color "green" "\n🎉🎉🎉 DEPLOYMENT COMPLETE! 🎉🎉🎉"
 print_color "green" "All services are up and running."
-echo -e "\n--- Accessing Services ---"
-echo "You can now use 'kubectl port-forward' to access the services. Example commands:"
-echo "  kubectl port-forward svc/frontend 8080:80"
-echo "  kubectl port-forward svc/backend 8081:8080"
-echo "  kubectl port-forward svc/keycloak 8083:8080"
-echo "  kubectl port-forward svc/jenkins 8082:8080"
-echo "  kubectl port-forward svc/mailhog 8025:8025"
-echo "" 
+
+# Step 6: Starting Port Forwarding in the Background
+print_color "blue" "\n--- Step 6: Starting Port Forwarding in the Background ---"
+print_color "green" "Starting port-forwarding for all services..."
+
+# Start each port-forward in the background
+kubectl port-forward svc/frontend 8081:80 &
+kubectl port-forward svc/backend 8080:8080 &
+kubectl port-forward svc/keycloak 8083:8080 &
+kubectl port-forward svc/jenkins 8082:8080 &
+kubectl port-forward svc/mailhog 8025:8025 &
+
+echo -e "\n--- Access URLs ---"
+echo "Frontend: http://localhost:8081"
+echo "Backend API: http://localhost:8080"
+echo "Keycloak: http://localhost:8083"
+echo "Jenkins: http://localhost:8082"
+echo "Mailhog: http://localhost:8025"
+echo -e "\n\e[33mPort-forwarding is active in the background.\e[0m"
+echo -e "\e[33mPress Ctrl+C in this terminal to stop all services.\e[0m\n"
+
+# Wait indefinitely until the user presses Ctrl+C
+wait 

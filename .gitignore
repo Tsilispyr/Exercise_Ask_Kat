@@ -53,3 +53,13 @@ docker-compose.override.yml
 # Kubernetes binaries (too large for Git)
 k8s/kubectl
 k8s/minikube-linux-amd64
+
+# Ignore Jenkins home directory
+jenkins_home/
+
+# Ignore other common files
+node_modules/
+target/
+*.log
+.idea/
+.vscode/

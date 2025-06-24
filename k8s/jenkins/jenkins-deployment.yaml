@@ -15,6 +15,8 @@ spec:
       serviceAccountName: jenkins
       securityContext:
         runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
       containers:
         - name: jenkins
           image: custom-jenkins:latest
@@ -29,8 +31,10 @@ spec:
               mountPath: /var/run/docker.sock
       volumes:
         - name: jenkins-home
-          persistentVolumeClaim:
-            claimName: jenkins-pvc
+          hostPath:
+            # This path exists on the kind node, mounted from the host.
+            path: /jenkins_data
+            type: DirectoryOrCreate
         - name: docker-socket
           hostPath:
             path: /var/run/docker.sock

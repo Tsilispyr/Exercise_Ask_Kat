@@ -15,7 +15,16 @@ spec:
       containers:
         - name: keycloak
           image: quay.io/keycloak/keycloak:24.0.4
-          args: ["start-dev", "--import-realm"]
+          args: 
+            - "start"
+            - "--db=postgres"
+            - "--db-url=jdbc:postgresql://postgres:5432/petdb"
+            - "--db-username=petuser"
+            - "--db-password=petpass"
+            - "--hostname-strict=false"
+            - "--hostname-strict-https=false"
+            - "--http-enabled=true"
+            - "--import-realm"
           ports:
             - containerPort: 8080
           env:

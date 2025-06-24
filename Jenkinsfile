@@ -25,11 +25,20 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image and Load into Kind') {
+        stage('Build & Load Backend Image') {
             steps {
                 dir('Ask') {
                     sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
                     sh "kind load docker-image ${IMAGE_NAME}:${IMAGE_TAG}"
+                }
+            }
+        }
+
+        stage('Build & Load Frontend Image') {
+            steps {
+                dir('frontend') {
+                    sh "docker build -t devops-pets-frontend:latest ."
+                    sh "kind load docker-image devops-pets-frontend:latest"
                 }
             }
         }
@@ -39,8 +48,10 @@ pipeline {
                 echo 'Deploying application to Kubernetes...'
                 sh 'kubectl apply -R -f k8s/'
                 sh 'kubectl rollout restart deployment backend'
-                echo 'Waiting for deployment to complete...'
-                sh 'kubectl wait --for=condition=ready pod -l app=backend --timeout=120s'
+                sh 'kubectl rollout restart deployment frontend'
+                echo 'Waiting for deployments to complete...'
+                sh 'kubectl wait --for=condition=available --timeout=120s deployment/backend'
+                sh 'kubectl wait --for=condition=available --timeout=120s deployment/frontend'
             }
         }
     }
