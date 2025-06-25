@@ -22,12 +22,13 @@ public class SecurityConfig {
                 ).permitAll()
                 .anyRequest().authenticated()
             )
-            .formLogin(form -> form
-                .loginPage("/login").permitAll()
-            )
-            .logout(logout -> logout.permitAll());
-        // Απενεργοποιούμε πλήρως την ασφάλεια με Keycloak
-        http.oauth2ResourceServer().disable();
+        //     .formLogin(form -> form
+        //         .loginPage("/login").permitAll()
+        //     )
+        //     .logout(logout -> logout.permitAll());
+        // // Απενεργοποιούμε πλήρως την ασφάλεια με Keycloak
+        // http.oauth2ResourceServer().disable();
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt());
         return http.build();
     }
 }
