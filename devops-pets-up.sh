@@ -198,8 +198,11 @@ echo "Backend API: http://localhost:8080"
 echo "Keycloak: http://localhost:8083"
 echo "Jenkins: http://localhost:8082"
 echo "Mailhog: http://localhost:8025"
-echo -e "\n\e[33mPort-forwarding is active in the background.\e[0m"
-echo -e "\e[33mPress Ctrl+C in this terminal to stop all services.\e[0m\n"
+
+echo -e "\n--- (Optional) Start Frontend Dev Server for Live Development ---"
+echo "If you want live reload, run: cd frontend && npm install && npm run dev"
+echo "Dev Frontend: http://localhost:5173"
+(cd frontend && npm install && npm run dev &)
 
 # Wait indefinitely until the user presses Ctrl+C
 wait 
