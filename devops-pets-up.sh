@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # --- Dependency Checks & Installations (Linux Only) ---
-
+: <<'END_DEPENDENCY_CHECKS'
 function print_color {
     COLOR=$1
     MESSAGE=$2
@@ -23,7 +23,7 @@ function check_and_install() {
         print_color "blue" "Installing $TOOL..."
         eval "$INSTALL_CMD"
     else
-        VERSION=$($VERSION_CMD | grep -oE '[0-9]+(\.[0-9]+)+')
+        VERSION=$($VERSION_CMD)
         print_color "green" "$TOOL is already installed (version $VERSION)."
         if [ ! -z "$MIN_VERSION" ]; then
             # Version check (major.minor only)
@@ -38,40 +38,47 @@ function check_and_install() {
 # Docker
 check_and_install "docker" \
     "curl -fsSL https://get.docker.com | sh" \
-    "docker version --format '{{.Client.Version}}' 2>/dev/null || docker --version | grep -oE '[0-9]+(\.[0-9]+)+' | head -n1" \
+    "docker --version" \
     "20.10"
 
 # kubectl
 check_and_install "kubectl" \
     "curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/" \
-    "kubectl version --client --output=json | grep -oE '"gitVersion": ?"v[0-9]+\.[0-9]+\.[0-9]+' | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+'" \
+    "kubectl version --client --short" \
     "1.24"
 
 # kind
 check_and_install "kind" \
     "curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-amd64 && chmod +x ./kind && sudo mv ./kind /usr/local/bin/kind" \
-    "kind --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1" \
+    "kind --version" \
     "0.20"
 
 # Node.js
 check_and_install "node" \
     "curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - && sudo apt-get install -y nodejs" \
-    "node --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1" \
+    "node --version" \
     "18.0"
 
 # npm
 check_and_install "npm" \
     "curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - && sudo apt-get install -y nodejs" \
-    "npm --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1" \
+    "npm --version" \
     "8.0"
 
 # Maven
 check_and_install "mvn" \
     "sudo apt-get update && sudo apt-get install -y maven" \
-    "mvn --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1" \
+    "mvn --version | head -n1" \
     "3.8"
 
 print_color "green" "All required dependencies are installed and up to date!"
+END_DEPENDENCY_CHECKS
+
+# Stop on any error
+set -e
+
+# Trap Ctrl+C and kill background jobs
+trap "echo -e '\n\e[31mStopping port-forwarding...\e[0m'; kill \$(jobs -p); exit" INT
 
 # --- Configuration ---
 CLUSTER_NAME="kind"
