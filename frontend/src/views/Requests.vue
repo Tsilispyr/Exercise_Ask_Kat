@@ -1,7 +1,6 @@
 <template>
   <div>
     <h2>Αιτήσεις Υιοθεσίας</h2>
-<<<<<<< HEAD
     <router-link v-if="hasRole('ADMIN') || hasRole('SHELTER')" to="/animals/add" class="btn">Add New Pet</router-link>
     <table v-if="requests.length > 0" class="table">
       <thead>
@@ -29,13 +28,6 @@
       </tbody>
     </table>
     <div v-else>Καμία αίτηση βρέθηκε.</div>
-=======
-    <ul>
-      <li v-for="r in requests" :key="r.id">
-        {{ r.name }} — Admin: {{ r.adminApproved }}, Doctor: {{ r.docApproved }}
-      </li>
-    </ul>
->>>>>>> b3ddf7906a718a82dc3d9088842cf9a6c5445701
   </div>
 </template>
 
@@ -52,7 +44,6 @@ export default {
       .then(r => r.json())
       .then(data => (this.requests = data))
       .catch(() => alert('Σφάλμα ανάκτησης αιτήσεων'))
-<<<<<<< HEAD
   },
   methods: {
     adminApprove(id) {
@@ -85,8 +76,6 @@ export default {
     hasRole(role) {
       return this.$keycloak.tokenParsed.realm_access.roles.includes(role)
     }
-=======
->>>>>>> b3ddf7906a718a82dc3d9088842cf9a6c5445701
   }
 }
 </script>
