@@ -75,7 +75,7 @@ public class UserService implements UserDetailsService {
                     user.getRoles()
                             .stream()
                             .map(role-> new SimpleGrantedAuthority(role.toString()))
-                            .collect(Collectors.toSet())
+                            .collect(java.util.stream.Collectors.toList())
             );
         }
     }
@@ -86,7 +86,7 @@ public class UserService implements UserDetailsService {
     }
 
     public User getUser(Long userId) {
-        return userRepository.findById(userId).get();
+        return userRepository.findById(userId).orElse(null);
     }
 
     @Transactional

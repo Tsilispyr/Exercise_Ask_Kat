@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 # NOTE: The frontend source is now at devops/frontend
 # Ensure your build scripts use the correct context
+=======
+>>>>>>> b3ddf7906a718a82dc3d9088842cf9a6c5445701
 apiVersion: apps/v1
 kind: Deployment
 metadata:

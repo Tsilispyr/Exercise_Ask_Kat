@@ -47,17 +47,8 @@ public class AnimalController {
     }
 
     @PutMapping("/Request/{id}")
-    public Animal requestAnimal(@PathVariable Integer id) {
-        Animal animal = animalservice.getAnimal(id);
-        animal.setReq(1);
+    public Animal updateAnimalRequest(@PathVariable Integer id, @RequestBody Animal animal) {
+        animal.setId(id);
         return animalservice.saveAnimal(animal);
     }
-
-    @PutMapping("/Deny/{id}")
-    public Animal denyAnimal(@PathVariable Integer id) {
-        Animal animal = animalservice.getAnimal(id);
-        animal.setReq(0);
-        return animalservice.saveAnimal(animal);
-    }
-
 }

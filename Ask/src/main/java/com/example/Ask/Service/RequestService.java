@@ -34,7 +34,7 @@ public class RequestService {
 
     @Transactional
     public Request getRequest(Integer id) {
-        return requestRepository.findById(id).get();
+        return requestRepository.findById(id).orElse(null);
     }
     
     @Transactional

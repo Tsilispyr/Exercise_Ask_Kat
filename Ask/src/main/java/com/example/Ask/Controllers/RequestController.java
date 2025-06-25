@@ -41,7 +41,6 @@ public class RequestController {
     public Request DocApprove(@PathVariable Integer id){
         Request request = requestService.getRequest(id);
         request.setDocApproved(1);
-        requestService.CheckRequest(request);
         return request;
     }
     @GetMapping("/new")
@@ -77,14 +76,6 @@ public class RequestController {
         Request request = requestService.getRequest(id);
         request.setAdminApproved(1);
         requestService.CheckRequest(request);
-        return requestService.saveRequest(request);
-    }
-
-    @PutMapping("/ApproveD/{id}")
-    public Request docApprove(@PathVariable Integer id) {
-        Request request = requestService.getRequest(id);
-        request.setDocApproved(1);
-        requestService.CheckRequest(request);
-        return requestService.saveRequest(request);
+        return request;
     }
 }

@@ -14,7 +14,6 @@ import java.util.Map;
 @RestController
 public class AuthController {
 
-
     private final BCryptPasswordEncoder passwordEncoder;
     RoleRepository roleRepository;
     UserService userService;
@@ -34,7 +33,6 @@ public class AuthController {
       roleRepository.updateOrInsert(role_admin);
       roleRepository.updateOrInsert(role_doctor);
       roleRepository.updateOrInsert(role_shelter);
-
     }
 
     @GetMapping("/login")

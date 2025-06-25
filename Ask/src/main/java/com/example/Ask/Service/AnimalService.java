@@ -31,7 +31,7 @@ public class AnimalService {
 
     @Transactional
     public Animal getAnimal(Integer id) {
-        return AnimalRepo.findById(id).get();
+        return AnimalRepo.findById(id).orElse(null);
     }
     @Transactional
     public void Delanimal(Animal animal) {
@@ -43,7 +43,7 @@ public class AnimalService {
         AnimalRepo.deleteById(id);
     }
 
-    }
+}
 
 
 

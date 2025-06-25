@@ -6,14 +6,18 @@ import Users from './views/Users.vue'
 import Admin from './views/Admin.vue'
 import Doctor from './views/Doctor.vue'
 import Shelter from './views/Shelter.vue'
+<<<<<<< HEAD
 import AnimalDetail from './views/AnimalDetail.vue'
 import AddAnimal from './views/AddAnimal.vue'
 import RequestDetail from './views/RequestDetail.vue'
+=======
+>>>>>>> b3ddf7906a718a82dc3d9088842cf9a6c5445701
 
 const routes = [
   { path: '/', component: Home },
   { path: '/animals', component: Animals, meta: { role: 'USER' } },
   { path: '/requests', component: Requests, meta: { role: 'USER' } },
+<<<<<<< HEAD
   { path: '/requests/:id', component: RequestDetail, meta: { role: 'USER' } },
   { path: '/users', component: Users, meta: { role: 'ADMIN' } },
   { path: '/admin', component: Admin, meta: { role: 'ADMIN' } },
@@ -21,6 +25,12 @@ const routes = [
   { path: '/shelter', component: Shelter, meta: { role: 'SHELTER' } },
   { path: '/animals/:id', component: AnimalDetail, meta: { role: 'USER' } },
   { path: '/animals/add', component: AddAnimal, meta: { role: 'ADMIN' } },
+=======
+  { path: '/users', component: Users, meta: { role: 'ADMIN' } },
+  { path: '/admin', component: Admin, meta: { role: 'ADMIN' } },
+  { path: '/doctor', component: Doctor, meta: { role: 'DOCTOR' } },
+  { path: '/shelter', component: Shelter, meta: { role: 'SHELTER' } }
+>>>>>>> b3ddf7906a718a82dc3d9088842cf9a6c5445701
 ]
 
 const router = createRouter({

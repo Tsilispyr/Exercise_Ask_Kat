@@ -28,9 +28,12 @@ Admin
 
 The Admin has access to all available action that Shelter and Doctor have, and also he has access to the user tab where he can view all users registered in the system and can delete users and change user information, add or remove roles from users.Lastly he has the responsibility for approving animals requests.
 
+<<<<<<< HEAD
 - The frontend is located at pets-devops/frontend
 + The frontend is now located at devops/frontend
 
+=======
+>>>>>>> b3ddf7906a718a82dc3d9088842cf9a6c5445701
 
 
 

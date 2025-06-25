@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +20,6 @@ import java.util.Map;
 public class UserController {
 
     private UserService userService;
-
     private RoleRepository roleRepository;
 
     public UserController(UserService userService, RoleRepository roleRepository) {
@@ -54,11 +52,9 @@ public class UserController {
 
     @PostMapping("/user/{user_id}")
     public User saveStudent(@PathVariable Long user_id, @RequestBody User user) {
-        User the_user = (User) userService.getUser(user_id);
-        the_user.setEmail(user.getEmail());
-        the_user.setUsername(user.getUsername());
-        userService.updateUser(the_user);
-        return the_user;
+        user.setId(user_id.intValue());
+        userService.saveUser(user);
+        return user;
     }
 
     @GetMapping("/user/role/delete/{user_id}/{role_id}")
@@ -78,5 +74,4 @@ public class UserController {
         userService.updateUser(user);
         return user;
     }
-
 }

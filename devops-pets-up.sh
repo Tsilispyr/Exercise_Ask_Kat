@@ -104,7 +104,11 @@ kubectl wait --for=condition=available --timeout=${TIMEOUT} deployment/frontend
 kubectl wait --for=condition=available --timeout=${TIMEOUT} deployment/jenkins
 kubectl wait --for=condition=available --timeout=${TIMEOUT} deployment/mailhog
 
+<<<<<<< HEAD
 print_color "green" "\nDEPLOYMENT COMPLETE!"
+=======
+print_color "green" "\n🎉🎉🎉 DEPLOYMENT COMPLETE! 🎉🎉🎉"
+>>>>>>> b3ddf7906a718a82dc3d9088842cf9a6c5445701
 print_color "green" "All services are up and running."
 
 # Step 6: Starting Port Forwarding in the Background
