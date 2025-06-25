@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
     "com.example.Service",
     "com.example.Ask.Controllers",
     "com.example.Ask.Entities",
-    "com.example.Ask.Repositiries"
+    "com.example.Ask.Repositories"
 })
 public class AskApplication {
     public static void main(String[] args) {

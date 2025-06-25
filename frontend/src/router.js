@@ -9,6 +9,7 @@ import Shelter from './views/Shelter.vue'
 import AnimalDetail from './views/AnimalDetail.vue'
 import AddAnimal from './views/AddAnimal.vue'
 import RequestDetail from './views/RequestDetail.vue'
+import Citizen from './views/Citizen.vue'
 
 const routes = [
   { path: '/', component: Home },
@@ -19,8 +20,10 @@ const routes = [
   { path: '/admin', component: Admin, meta: { role: 'ADMIN' } },
   { path: '/doctor', component: Doctor, meta: { role: 'DOCTOR' } },
   { path: '/shelter', component: Shelter, meta: { role: 'SHELTER' } },
+  { path: '/citizen', component: Citizen, meta: { role: 'CITIZEN' } },
   { path: '/animals/:id', component: AnimalDetail, meta: { role: 'USER' } },
   { path: '/animals/add', component: AddAnimal, meta: { role: 'ADMIN' } },
+  { path: '/forbidden', component: { template: '<div>Απαγορευμένη Πρόσβαση</div>' } }
 ]
 
 const router = createRouter({
