@@ -1,10 +1,77 @@
 #!/bin/bash
 
-# Stop on any error
-set -e
+# --- Dependency Checks & Installations (Linux Only) ---
 
-# Trap Ctrl+C and kill background jobs
-trap "echo -e '\n\e[31mStopping port-forwarding...\e[0m'; kill \$(jobs -p); exit" INT
+function print_color {
+    COLOR=$1
+    MESSAGE=$2
+    case $COLOR in
+        "green") echo -e "\e[32m${MESSAGE}\e[0m" ;;
+        "blue") echo -e "\e[34m${MESSAGE}\e[0m" ;;
+        "red") echo -e "\e[31m${MESSAGE}\e[0m" ;;
+        *) echo "${MESSAGE}" ;;
+    esac
+}
+
+function check_and_install() {
+    TOOL=$1
+    INSTALL_CMD=$2
+    VERSION_CMD=$3
+    MIN_VERSION=$4
+
+    if ! command -v $TOOL &> /dev/null; then
+        print_color "blue" "Installing $TOOL..."
+        eval "$INSTALL_CMD"
+    else
+        VERSION=$($VERSION_CMD | grep -oE '[0-9]+(\.[0-9]+)+')
+        print_color "green" "$TOOL is already installed (version $VERSION)."
+        if [ ! -z "$MIN_VERSION" ]; then
+            # Version check (major.minor only)
+            if [ "$(printf '%s\n' "$MIN_VERSION" "$VERSION" | sort -V | head -n1)" != "$MIN_VERSION" ]; then
+                print_color "red" "$TOOL version is too old. Please update to at least $MIN_VERSION."
+                exit 1
+            fi
+        fi
+    fi
+}
+
+# Docker
+check_and_install "docker" \
+    "curl -fsSL https://get.docker.com | sh" \
+    "docker --version" \
+    "20.10"
+
+# kubectl
+check_and_install "kubectl" \
+    "curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/" \
+    "kubectl version --client --short" \
+    "1.24"
+
+# kind
+check_and_install "kind" \
+    "curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-amd64 && chmod +x ./kind && sudo mv ./kind /usr/local/bin/kind" \
+    "kind --version" \
+    "0.20"
+
+# Node.js
+check_and_install "node" \
+    "curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - && sudo apt-get install -y nodejs" \
+    "node --version" \
+    "18.0"
+
+# npm
+check_and_install "npm" \
+    "curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - && sudo apt-get install -y nodejs" \
+    "npm --version" \
+    "8.0"
+
+# Maven
+check_and_install "mvn" \
+    "sudo apt-get update && sudo apt-get install -y maven" \
+    "mvn --version | head -n1" \
+    "3.8"
+
+print_color "green" "All required dependencies are installed and up to date!"
 
 # --- Configuration ---
 CLUSTER_NAME="kind"
