@@ -33,6 +33,8 @@ public class User {
     @Size(max = 120)
     private String password;
 
+    private String status = "pending";
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(	name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -42,10 +44,18 @@ public class User {
     public User() {
     }
 
+    public User(String username, String email, String password, String status) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.status = status;
+    }
+
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.status = "approved";
     }
 
     public Integer getId() {
@@ -78,6 +88,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public Set<Role> getRoles() {

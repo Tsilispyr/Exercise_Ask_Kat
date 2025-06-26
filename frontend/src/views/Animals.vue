@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>Διαθέσιμα Ζώα</h2>
-    <router-link v-if="hasRole('ADMIN') || hasRole('SHELTER')" to="/animals/add" class="btn">Προσθήκη Ζώου</router-link>
+    <router-link v-if="hasRole('ADMIN') || hasRole('shelter')" to="/animals/add" class="btn">Προσθήκη Ζώου</router-link>
     <div v-if="animals.length === 0">Κανένα ζώο διαθέσιμο.</div>
     <ul v-else>
       <li v-for="a in animals" :key="a.id" class="animal-card">
@@ -10,8 +10,8 @@
         <p>Φύλο: {{ a.gender }}</p>
         <p>Ηλικία: {{ a.age }}</p>
         <router-link :to="`/animals/${a.id}`" class="btn">Λεπτομέρειες</router-link>
-        <button @click="requestAnimal(a.id)" v-if="a.req === 0">Αίτηση Υιοθεσίας</button>
-        <template v-if="a.req === 1 && (hasRole('ADMIN') || hasRole('SHELTER'))">
+        <button @click="requestAnimal(a.id)" v-if="a.req === 0 && hasRole('USER')">Αίτηση Υιοθεσίας</button>
+        <template v-if="a.req === 1 && (hasRole('ADMIN') || hasRole('shelter'))">
           <button @click="approveAnimal(a.id)">Έγκριση</button>
           <button @click="denyAnimal(a.id)">Απόρριψη</button>
         </template>
@@ -76,7 +76,8 @@ export default {
       this.mounted()
     },
     hasRole(role) {
-      return this.$keycloak.tokenParsed.realm_access.roles.includes(role)
+      const roles = this.$keycloak.tokenParsed?.realm_access?.roles?.map(r => r.toLowerCase()) || [];
+      return roles.includes(role.toLowerCase());
     }
   }
 }

@@ -19,12 +19,9 @@ spec:
             - "start"
             - "--db=postgres"
             - "--db-url=jdbc:postgresql://postgres:5432/petdb"
-            - "--db-username=petuser"
-            - "--db-password=petpass"
             - "--hostname-strict=false"
             - "--hostname-strict-https=false"
             - "--http-enabled=true"
-            - "--import-realm"
           ports:
             - containerPort: 8080
           env:
@@ -37,14 +34,25 @@ spec:
             - name: KC_DB_URL
               value: jdbc:postgresql://postgres:5432/petdb
             - name: KC_DB_USERNAME
-              value: petuser
+              valueFrom:
+                  secretKeyRef:
+                    name: postgres-secret
+                    key: POSTGRES_USER
             - name: KC_DB_PASSWORD
-              value: petpass
+              valueFrom:
+                  secretKeyRef:
+                    name: postgres-secret
+                    key: POSTGRES_PASSWORD
           volumeMounts:
             - name: realm-config
               mountPath: /opt/keycloak/data/import/realm-export.json
               subPath: realm-export.json
+            - name: keycloak-data
+              mountPath: /opt/keycloak/data
       volumes:
         - name: realm-config
           configMap:
-            name: keycloak-realm-config 
+            name: keycloak-realm-config
+        - name: keycloak-data
+          persistentVolumeClaim:
+            claimName: keycloak-pvc 

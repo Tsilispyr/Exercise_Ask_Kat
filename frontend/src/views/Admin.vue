@@ -1,20 +1,16 @@
 <template>
   <div>
     <h2>Admin Dashboard</h2>
-    <nav>
-      <router-link to="/users">Διαχείριση Χρηστών</router-link> |
-      <router-link to="/animals">Έγκριση Κατοικίδιων</router-link> |
-      <router-link to="/requests">Αιτήσεις Υιοθεσίας</router-link>
-    </nav>
-    <section>
-      <h3>Ενέργειες Διαχειριστή</h3>
-      <ul>
-        <li>Επιβεβαίωση νέων προφίλ καταφυγίου</li>
-        <li>Έγκριση/απόρριψη καταχωρίσεων κατοικίδιων</li>
-        <li>Διαχείριση λογαριασμών χρηστών</li>
-        <li>Παρακολούθηση αιτημάτων υιοθεσίας</li>
-      </ul>
-    </section>
-    <router-view/>
+    <RequestList />
+    <AdoptionRequestList />
+    <UserList />
   </div>
 </template>
+<script>
+import RequestList from '../components/RequestList.vue';
+import AdoptionRequestList from '../components/AdoptionRequestList.vue';
+import UserList from '../components/UserList.vue';
+export default {
+  components: { RequestList, AdoptionRequestList, UserList }
+}
+</script>

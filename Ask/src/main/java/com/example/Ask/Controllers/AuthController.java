@@ -10,6 +10,12 @@ import com.example.Ask.Service.UserService;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.http.ResponseEntity;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Optional;
 
 @RestController
 public class AuthController {
@@ -40,5 +46,27 @@ public class AuthController {
         Map<String, String> response = new HashMap<>();
         response.put("message", "Login endpoint (API)");
         return response;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody Map<String, String> payload) {
+        String username = payload.get("username");
+        String email = payload.get("email");
+        String password = payload.get("password");
+        String roleName = payload.get("role");
+        if (username == null || email == null || password == null || roleName == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Missing fields"));
+        }
+        Optional<Role> roleOpt = roleRepository.findByName(roleName);
+        if (roleOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid role"));
+        }
+        User user = new User(username, email, password, "pending");
+        Set<Role> roles = new HashSet<>();
+        roles.add(roleOpt.get());
+        user.setRoles(roles);
+        user.setPassword(passwordEncoder.encode(password));
+        userService.saveUserWithRoles(user, roles);
+        return ResponseEntity.ok(Map.of("message", "Registration successful. Awaiting admin approval."));
     }
 }

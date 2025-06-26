@@ -8,17 +8,20 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import com.example.Ask.Entities.Request;
 import java.util.List;
+import com.example.Ask.Service.EmailService;
 
 @Service
 public class RequestService {
     private final AnimalService animalService;
     private RequestRepository requestRepository;
     private RequestService requestService;
+    private final EmailService emailService;
 
-    public RequestService(RequestRepository requestRepository, AnimalService animalService) {
+    public RequestService(RequestRepository requestRepository, AnimalService animalService, EmailService emailService) {
         this.requestRepository = requestRepository;
         this.requestService = this;
         this.animalService = animalService;
+        this.emailService = emailService;
     }
 
     @Transactional
@@ -97,6 +100,50 @@ public class RequestService {
         //     "The admin has " + decision + " your request for animal '" + request.getAnimal().getName() +
         //     "'. This is the final decision."
         // );
+    }
+
+    @Transactional
+    public List<Request> getPendingRequests() {
+        return requestRepository.findAll().stream()
+            .filter(r -> r.getAdminApproved() == 0 || r.getDocApproved() == 0)
+            .toList();
+    }
+
+    @Transactional
+    public Request createRequest(Request req) {
+        req.setAdminApproved(0);
+        req.setDocApproved(0);
+        Request saved = requestRepository.save(req);
+        String email = (req.getUser() != null && req.getUser().getEmail() != null) ? req.getUser().getEmail() : "user@demo.local";
+        emailService.send(email, "Request Submitted", "Your request for animal '" + req.getName() + "' has been submitted and is pending approval.");
+        return saved;
+    }
+
+    @Transactional
+    public void approveRequest(Long id) {
+        Request req = requestRepository.findById(id.intValue()).orElseThrow();
+        req.setAdminApproved(1);
+        req.setDocApproved(1);
+        requestRepository.save(req);
+        if (req.getAdminApproved() == 1 && req.getDocApproved() == 1) {
+            Animal animal = new Animal();
+            animal.setAge(req.getAge());
+            animal.setGender(req.getGender());
+            animal.setType(req.getType());
+            animal.setName(req.getName());
+            animalService.saveAnimal(animal);
+            requestRepository.delete(req);
+            String email = (req.getUser() != null && req.getUser().getEmail() != null) ? req.getUser().getEmail() : "user@demo.local";
+            emailService.send(email, "Request Approved", "Your request for animal '" + req.getName() + "' has been approved and the animal is now available for adoption.");
+        }
+    }
+
+    @Transactional
+    public void denyRequest(Long id) {
+        Request req = requestRepository.findById(id.intValue()).orElseThrow();
+        requestRepository.delete(req);
+        String email = (req.getUser() != null && req.getUser().getEmail() != null) ? req.getUser().getEmail() : "user@demo.local";
+        emailService.send(email, "Request Denied", "Your request for animal '" + req.getName() + "' has been denied.");
     }
 }
 

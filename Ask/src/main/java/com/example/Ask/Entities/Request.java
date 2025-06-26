@@ -26,6 +26,10 @@ public class Request {
     @Column
     private int DocApproved;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
     public String getName() {
         return name;
     }
@@ -82,12 +86,21 @@ public class Request {
         this.Gender = gender;
     }
 
-    public Request(int id, int age, Gender gender, String type, String name) {
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Request(int id, int age, Gender gender, String type, String name, User user) {
         this.id = id;
         this.age = age;
         this.Gender = gender;
         this.type = type;
         this.name = name;
+        this.user = user;
     }
     public Request() {
 

@@ -202,7 +202,7 @@ echo "Mailhog: http://localhost:8025"
 echo -e "\n--- (Optional) Start Frontend Dev Server for Live Development ---"
 echo "If you want live reload, run: cd frontend && npm install && npm run dev"
 echo "Dev Frontend: http://localhost:5173"
-(cd frontend && npm install && npm run dev &)
+# (cd frontend && npm install && npm run dev &)
 
 # Wait indefinitely until the user presses Ctrl+C
 wait 

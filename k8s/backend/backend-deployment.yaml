@@ -30,6 +30,6 @@ spec:
             - name: SPRING_MAIL_PORT
               value: "1025"
             - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
-              value: http://keycloak:8080/realms/petsystem
+              value: http://localhost:8083/realms/petsystem
             - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_AUDIENCES
               value: backend

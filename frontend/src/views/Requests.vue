@@ -74,7 +74,8 @@ export default {
       this.mounted()
     },
     hasRole(role) {
-      return this.$keycloak.tokenParsed.realm_access.roles.includes(role)
+      const roles = this.$keycloak.tokenParsed?.realm_access?.roles?.map(r => r.toLowerCase()) || [];
+      return roles.includes(role.toLowerCase());
     }
   }
 }

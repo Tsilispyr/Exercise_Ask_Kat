@@ -12,6 +12,14 @@
         <li>Έγκριση/απόρριψη ζώων για υιοθεσία</li>
       </ul>
     </section>
+    <RequestList />
     <router-view/>
   </div>
 </template>
+
+<script>
+import RequestList from '../components/RequestList.vue';
+export default {
+  components: { RequestList }
+}
+</script>

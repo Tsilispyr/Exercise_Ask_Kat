@@ -13,16 +13,16 @@ import Citizen from './views/Citizen.vue'
 
 const routes = [
   { path: '/', component: Home },
-  { path: '/animals', component: Animals, meta: { role: 'USER' } },
-  { path: '/requests', component: Requests, meta: { role: 'USER' } },
-  { path: '/requests/:id', component: RequestDetail, meta: { role: 'USER' } },
-  { path: '/users', component: Users, meta: { role: 'ADMIN' } },
-  { path: '/admin', component: Admin, meta: { role: 'ADMIN' } },
-  { path: '/doctor', component: Doctor, meta: { role: 'DOCTOR' } },
-  { path: '/shelter', component: Shelter, meta: { role: 'SHELTER' } },
-  { path: '/citizen', component: Citizen, meta: { role: 'CITIZEN' } },
-  { path: '/animals/:id', component: AnimalDetail, meta: { role: 'USER' } },
-  { path: '/animals/add', component: AddAnimal, meta: { role: 'ADMIN' } },
+  { path: '/animals', component: Animals },
+  { path: '/requests', component: Requests },
+  { path: '/requests/:id', component: RequestDetail },
+  { path: '/users', component: Users },
+  { path: '/admin', component: Admin },
+  { path: '/doctor', component: Doctor },
+  { path: '/shelter', component: Shelter },
+  { path: '/citizen', component: Citizen },
+  { path: '/animals/:id', component: AnimalDetail },
+  { path: '/animals/add', component: AddAnimal },
   { path: '/forbidden', component: { template: '<div>Απαγορευμένη Πρόσβαση</div>' } }
 ]
 

@@ -14,6 +14,16 @@
         <li>Επικοινωνία με ενδιαφερόμενους</li>
       </ul>
     </section>
+    <RequestList />
+    <AdoptionRequestList />
     <router-view/>
   </div>
 </template>
+
+<script>
+import RequestList from '../components/RequestList.vue';
+import AdoptionRequestList from '../components/AdoptionRequestList.vue';
+export default {
+  components: { RequestList, AdoptionRequestList }
+}
+</script>

@@ -19,12 +19,17 @@
 <script>
 export default {
   computed: {
+    keycloak() {
+      return this.$keycloak || {};
+    },
+    roles() {
+      return this.keycloak.tokenParsed?.realm_access?.roles || [];
+    },
     role() {
-      const roles = this.$keycloak.tokenParsed?.realm_access?.roles || []
-      if (roles.includes('ADMIN')) return 'ADMIN'
-      if (roles.includes('SHELTER')) return 'SHELTER'
-      if (roles.includes('DOCTOR')) return 'DOCTOR'
-      return 'CITIZEN'
+      if (this.roles.includes('ADMIN')) return 'ADMIN';
+      if (this.roles.includes('SHELTER')) return 'SHELTER';
+      if (this.roles.includes('DOCTOR')) return 'DOCTOR';
+      return 'CITIZEN';
     }
   }
 }

@@ -4,6 +4,7 @@ import com.example.Ask.Entities.User;
 import com.example.Ask.Entities.Role;
 import com.example.Ask.Repositories.RoleRepository;
 import com.example.Ask.Repositories.UserRepository;
+import com.example.Ask.Service.EmailService;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,11 +33,14 @@ public class UserService implements UserDetailsService {
 
     private BCryptPasswordEncoder passwordEncoder;
 
+    private EmailService emailService;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder) {
+
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder, EmailService emailService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     @Transactional
@@ -60,6 +64,17 @@ public class UserService implements UserDetailsService {
         user = userRepository.save(user);
         return user.getId();
     }
+
+    @Transactional
+    public Integer saveUserWithRoles(User user, Set<Role> roles) {
+        String passwd = user.getPassword();
+        String encodedPassword = passwordEncoder.encode(passwd);
+        user.setPassword(encodedPassword);
+        user.setRoles(roles);
+        user = userRepository.save(user);
+        return user.getId();
+    }
+
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -92,5 +107,43 @@ public class UserService implements UserDetailsService {
     @Transactional
     public void updateOrInsertRole(Role role) {
         roleRepository.updateOrInsert(role);
+    }
+
+    @Transactional
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @Transactional
+    public User createUser(User user) {
+        User saved = userRepository.save(user);
+        emailService.send(user.getEmail(), "Registration Successful", "Welcome " + user.getUsername() + "! Your registration is pending approval.");
+        return saved;
+    }
+
+    @Transactional
+    public User approveUser(Long id) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setStatus("approved");
+        userRepository.save(user);
+        emailService.send(user.getEmail(), "Account Approved", "Your account has been approved. You can now log in.");
+        return user;
+    }
+
+    @Transactional
+    public User updateUser(Long id, User user) {
+        user.setId(id.intValue());
+        User updated = userRepository.save(user);
+        emailService.send(user.getEmail(), "Account Updated", "Your account details have been updated.");
+        return updated;
+    }
+
+    @Transactional
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user != null) {
+            emailService.send(user.getEmail(), "Account Deleted", "Your account has been deleted.");
+        }
+        userRepository.deleteById(id);
     }
 }

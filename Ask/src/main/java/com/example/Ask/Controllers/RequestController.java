@@ -9,16 +9,39 @@ import org.springframework.web.bind.annotation.*;
 import com.example.Ask.Entities.Animal;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @RestController
-@RequestMapping("Request")
+@RequestMapping("/api/requests")
 public class RequestController {
 
     private AnimalService animalService;
-    private RequestService requestService;
+    @Autowired private RequestService requestService;
     public RequestController(RequestService requestService,AnimalService animalService) {
         this.requestService = requestService;
         this.animalService = animalService;
+    }
+
+    @GetMapping("/pending")
+    public List<Request> getPendingRequests() {
+        return requestService.getPendingRequests();
+    }
+
+    @PostMapping
+    public Request createRequest(@RequestBody Request req) {
+        return requestService.createRequest(req);
+    }
+
+    @PostMapping("/{id}/approve")
+    public ResponseEntity<?> approveRequest(@PathVariable Long id) {
+        requestService.approveRequest(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/deny")
+    public ResponseEntity<?> denyRequest(@PathVariable Long id) {
+        requestService.denyRequest(id);
+        return ResponseEntity.ok().build();
     }
 
     @RequestMapping("")
@@ -51,11 +74,6 @@ public class RequestController {
     public List<Request> saveRequest(@RequestBody Request request) {
         requestService.saveRequest(request);
         return requestService.getRequests();
-    }
-
-    @PostMapping("")
-    public Request createRequest(@RequestBody Request request) {
-        return requestService.saveRequest(request);
     }
 
     @PutMapping("/{id}")

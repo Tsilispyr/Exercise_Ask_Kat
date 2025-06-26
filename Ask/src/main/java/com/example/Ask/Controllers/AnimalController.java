@@ -1,54 +1,33 @@
 package com.example.Ask.Controllers;
 
-import com.example.Ask.Service.AnimalService;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
 import com.example.Ask.Entities.Animal;
-import com.example.Ask.Entities.Gender;
+import com.example.Ask.Service.AnimalService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import org.springframework.http.ResponseEntity;
 
 @RestController
-@RequestMapping("Animal")
+@RequestMapping("/api/animals")
 public class AnimalController {
+    @Autowired private AnimalService animalService;
 
-    private AnimalService animalservice;
-
-    public AnimalController(AnimalService animalservice) {
-        this.animalservice = animalservice;
+    @GetMapping("/available")
+    public List<Animal> getAvailableAnimals() {
+        return animalService.getAvailableAnimals();
     }
 
-    @RequestMapping("")
-    public List<Animal> showAnimals() {
-        return animalservice.getAnimals();
-    }
-
-    @GetMapping("/{id}")
-    public Animal showAnimal(@PathVariable Integer id){
-        return animalservice.getAnimal(id);
-    }
-
-    @PostMapping("")
+    @PostMapping
     public Animal createAnimal(@RequestBody Animal animal) {
-        return animalservice.saveAnimal(animal);
+        return animalService.createAnimal(animal);
     }
 
     @PutMapping("/{id}")
-    public Animal updateAnimal(@PathVariable Integer id, @RequestBody Animal animal) {
-        animal.setId(id);
-        return animalservice.saveAnimal(animal);
+    public Animal updateAnimal(@PathVariable Long id, @RequestBody Animal animal) {
+        return animalService.updateAnimal(id, animal);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAnimal(@PathVariable Integer id) {
-        Animal animal = animalservice.getAnimal(id);
-        animalservice.Delanimal(animal);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/Request/{id}")
-    public Animal updateAnimalRequest(@PathVariable Integer id, @RequestBody Animal animal) {
-        animal.setId(id);
-        return animalservice.saveAnimal(animal);
+    public void deleteAnimal(@PathVariable Long id) {
+        animalService.deleteAnimal(id);
     }
 }

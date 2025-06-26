@@ -96,4 +96,9 @@
           kubectl get pods
           
           To access the application:
-          kubectl port-forward service/backend 8080:8080 
+          kubectl port-forward service/backend 8080:8080
+
+    - name: Create Keycloak realm configmap
+      command: kubectl create configmap keycloak-realm-config --from-file=realm-export.json=../keycloak/realm-export.json --dry-run=client -o yaml | kubectl apply -f -
+      register: keycloak_configmap
+      failed_when: false 
