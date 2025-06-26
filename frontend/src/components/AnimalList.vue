@@ -15,8 +15,8 @@ export default {
   data() { return { animals: [] }; },
   computed: {
     canAdopt() {
-      const roles = this.$keycloak.tokenParsed?.realm_access?.roles || [];
-      return roles.includes('USER');
+      const roles = this.$keycloak.tokenParsed?.realm_access?.roles?.map(r => r.toLowerCase()) || [];
+      return roles.includes('user');
     }
   },
   async mounted() {

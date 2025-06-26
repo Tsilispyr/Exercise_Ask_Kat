@@ -57,7 +57,11 @@ public class AuthController {
         if (username == null || email == null || password == null || roleName == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "Missing fields"));
         }
-        Optional<Role> roleOpt = roleRepository.findByName(roleName);
+        String normalizedRole = roleName.toUpperCase();
+        if (!normalizedRole.startsWith("ROLE_")) {
+            normalizedRole = "ROLE_" + normalizedRole;
+        }
+        Optional<Role> roleOpt = roleRepository.findByName(normalizedRole);
         if (roleOpt.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("message", "Invalid role"));
         }

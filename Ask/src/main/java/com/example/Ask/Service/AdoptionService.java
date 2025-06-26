@@ -53,4 +53,10 @@ public class AdoptionService {
                 "Your adoption request for animal '" + (req.getAnimal() != null ? req.getAnimal().getName() : "") + "' has been denied.");
         }
     }
+
+    public List<AdoptionRequest> getAdoptionsByUsername(String username) {
+        return adoptionRepo.findAll().stream()
+            .filter(a -> a.getUser() != null && username.equals(a.getUser().getUsername()))
+            .toList();
+    }
 } 

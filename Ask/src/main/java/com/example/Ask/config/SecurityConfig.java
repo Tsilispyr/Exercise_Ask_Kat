@@ -10,6 +10,12 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import java.util.Arrays;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
@@ -34,8 +40,25 @@ public class SecurityConfig {
         //     .logout(logout -> logout.permitAll());
         // // Απενεργοποιούμε πλήρως την ασφάλεια με Keycloak
         // http.oauth2ResourceServer().disable();
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt());
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+            );
         return http.build();
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(jwt -> {
+            Map<String, Object> realmAccess = (Map<String, Object>) jwt.getClaims().get("realm_access");
+            if (realmAccess == null || realmAccess.get("roles") == null) return List.of();
+            Collection<String> roles = (Collection<String>) realmAccess.get("roles");
+            return roles.stream()
+                .map(role -> "ROLE_" + role.toUpperCase())
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+        });
+        return converter;
     }
 
     @Bean

@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import api from '../api';
 export default {
   data() {
     return {
@@ -31,18 +32,13 @@ export default {
   methods: {
     async register() {
       try {
-        const res = await fetch("/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: this.username,
-            email: this.email,
-            password: this.password,
-            role: this.role
-          })
+        const res = await api.post('/register', {
+          username: this.username,
+          email: this.email,
+          password: this.password,
+          role: this.role
         });
-        const data = await res.json();
-        this.message = data.message || "Registration submitted. Awaiting admin approval.";
+        this.message = res.data.message || "Registration submitted. Awaiting admin approval.";
       } catch (e) {
         this.message = "Registration failed.";
       }

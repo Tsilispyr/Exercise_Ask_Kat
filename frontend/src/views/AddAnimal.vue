@@ -28,6 +28,7 @@
 </template>
 
 <script>
+import api from '../api';
 export default {
   data() {
     return {
@@ -36,18 +37,8 @@ export default {
   },
   methods: {
     addAnimal() {
-      fetch('http://localhost:8080/Animal', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.$keycloak.token}`
-        },
-        body: JSON.stringify(this.animal)
-      })
-        .then(r => {
-          if (!r.ok) throw new Error('Σφάλμα προσθήκης ζώου')
-          this.$router.push('/animals')
-        })
+      api.post('/animals', this.animal)
+        .then(() => this.$router.push('/animals'))
         .catch(() => alert('Σφάλμα προσθήκης ζώου'))
     }
   }

@@ -32,41 +32,29 @@
 </template>
 
 <script>
+import api from '../api';
 export default {
   data() {
     return { requests: [] }
   },
   mounted() {
-    const kc = this.$keycloak
-    fetch('http://localhost:8080/Request', {
-      headers: { Authorization: `Bearer ${kc.token}` }
-    })
-      .then(r => r.json())
-      .then(data => (this.requests = data))
+    api.get('/requests')
+      .then(r => (this.requests = r.data))
       .catch(() => alert('Σφάλμα ανάκτησης αιτήσεων'))
   },
   methods: {
     adminApprove(id) {
-      fetch(`http://localhost:8080/Request/Approve/${id}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${this.$keycloak.token}` }
-      })
+      api.post(`/requests/${id}/approve`)
         .then(() => this.reload())
         .catch(() => alert('Σφάλμα admin έγκρισης'))
     },
     doctorApprove(id) {
-      fetch(`http://localhost:8080/Request/ApproveD/${id}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${this.$keycloak.token}` }
-      })
+      api.post(`/requests/${id}/approve-doctor`)
         .then(() => this.reload())
         .catch(() => alert('Σφάλμα doctor έγκρισης'))
     },
     deleteRequest(id) {
-      fetch(`http://localhost:8080/Request/Delete/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${this.$keycloak.token}` }
-      })
+      api.delete(`/requests/${id}`)
         .then(() => this.reload())
         .catch(() => alert('Σφάλμα διαγραφής'))
     },

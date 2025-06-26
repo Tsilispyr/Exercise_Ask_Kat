@@ -22,53 +22,37 @@
 </template>
 
 <script>
+import api from '../api';
 export default {
   data() {
     return { animals: [] }
   },
   mounted() {
-    const kc = this.$keycloak
-    fetch('http://localhost:8080/Animal', {
-      headers: { Authorization: `Bearer ${kc.token}` }
-    })
-      .then(r => r.json())
-      .then(data => (this.animals = data))
+    api.get('/animals')
+      .then(r => {
+        this.animals = r.data;
+        console.log('Fetched animals:', this.animals);
+      })
       .catch(() => alert('Σφάλμα ανάκτησης ζώων'))
   },
   methods: {
     requestAnimal(id) {
-      fetch(`http://localhost:8080/Request/new`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.$keycloak.token}`
-        },
-        body: JSON.stringify({ animalId: id })
-      })
+      api.post('/requests/new', { animalId: id })
         .then(() => alert('Αίτηση υποβλήθηκε'))
         .catch(() => alert('Σφάλμα κατά την αίτηση'))
     },
     approveAnimal(id) {
-      fetch(`http://localhost:8080/Animal/Delete/${id}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${this.$keycloak.token}` }
-      })
+      api.post(`/animals/${id}/approve`)
         .then(() => this.reload())
         .catch(() => alert('Σφάλμα έγκρισης'))
     },
     denyAnimal(id) {
-      fetch(`http://localhost:8080/Animal/Deny/${id}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${this.$keycloak.token}` }
-      })
+      api.post(`/animals/${id}/deny`)
         .then(() => this.reload())
         .catch(() => alert('Σφάλμα απόρριψης'))
     },
     deleteAnimal(id) {
-      fetch(`http://localhost:8080/Animal/Delete/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${this.$keycloak.token}` }
-      })
+      api.delete(`/animals/${id}`)
         .then(() => this.reload())
         .catch(() => alert('Σφάλμα διαγραφής'))
     },

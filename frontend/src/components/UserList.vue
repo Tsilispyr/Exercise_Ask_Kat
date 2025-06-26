@@ -3,7 +3,7 @@
     <h2>Users</h2>
     <ul>
       <li v-for="user in users" :key="user.id">
-        {{ user.username }} - {{ user.email }} - {{ user.roles.join(', ') }}
+        {{ user.username }} - {{ user.email }} - {{ user.roles && Array.isArray(user.roles) ? user.roles.join(', ') : '' }}
         <button @click="editUser(user)">Edit</button>
       </li>
     </ul>

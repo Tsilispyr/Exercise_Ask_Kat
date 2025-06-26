@@ -22,6 +22,7 @@ spec:
             - "--hostname-strict=false"
             - "--hostname-strict-https=false"
             - "--http-enabled=true"
+            - "--import-realm"
           ports:
             - containerPort: 8080
           env:
@@ -44,15 +45,34 @@ spec:
                     name: postgres-secret
                     key: POSTGRES_PASSWORD
           volumeMounts:
-            - name: realm-config
-              mountPath: /opt/keycloak/data/import/realm-export.json
-              subPath: realm-export.json
             - name: keycloak-data
               mountPath: /opt/keycloak/data
+            - name: keycloak-realm-config
+              mountPath: /opt/keycloak/data/import/realm-export.json
+              subPath: realm-export.json
       volumes:
-        - name: realm-config
-          configMap:
-            name: keycloak-realm-config
         - name: keycloak-data
           persistentVolumeClaim:
-            claimName: keycloak-pvc 
+            claimName: keycloak-pvc
+        - name: keycloak-realm-config
+          configMap:
+            name: keycloak-realm-config
+
+      initContainers:
+        - name: import-realm
+          image: quay.io/keycloak/keycloak:24.0.4
+          command:
+            - sh
+            - -c
+            - >
+                if [ ! -d /opt/keycloak/data/imported-realm ]; then \
+                  /opt/keycloak/bin/kc.sh import --file=/realm/realm-export.json --override true && \
+                  mkdir /opt/keycloak/data/imported-realm; \
+                else \
+                  echo "Realm already imported."; \
+                fi
+          volumeMounts:
+            - name: keycloak-data
+              mountPath: /opt/keycloak/data
+            - name: keycloak-realm-config
+              mountPath: /realm 

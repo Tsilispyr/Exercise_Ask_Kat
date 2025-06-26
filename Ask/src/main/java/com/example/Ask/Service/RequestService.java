@@ -145,5 +145,12 @@ public class RequestService {
         String email = (req.getUser() != null && req.getUser().getEmail() != null) ? req.getUser().getEmail() : "user@demo.local";
         emailService.send(email, "Request Denied", "Your request for animal '" + req.getName() + "' has been denied.");
     }
+
+    @Transactional
+    public List<Request> getRequestsByUsername(String username) {
+        return requestRepository.findAll().stream()
+            .filter(r -> r.getUser() != null && username.equals(r.getUser().getUsername()))
+            .toList();
+    }
 }
 
